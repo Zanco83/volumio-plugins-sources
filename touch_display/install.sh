@@ -37,6 +37,21 @@ TMP_DIR="$(mktemp -dt "$PLUGIN_NAME"-XXXXXXXXXX)" || { echo "Creating temporary 
 
 export DEBIAN_FRONTEND=noninteractive
 
+if grep -q Raspberry /proc/cpuinfo; then # on Raspberry Pi hardware
+  echo "Installing fake packages for kernel, bootloader and pi lib"
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/libraspberrypi0_0.0.1_all.deb
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-bootloader_0.0.1_all.deb
+  wget https://repo.volumio.org/Volumio2/Binaries/arm/raspberrypi-kernel_0.0.1_all.deb
+  sudo dpkg -i libraspberrypi0_0.0.1_all.deb
+  sudo dpkg -i raspberrypi-bootloader_0.0.1_all.deb
+  sudo dpkg -i raspberrypi-kernel_0.0.1_all.deb
+  rm libraspberrypi0_0.0.1_all.deb
+  rm raspberrypi-bootloader_0.0.1_all.deb
+  rm raspberrypi-kernel_0.0.1_all.deb
+
+  echo "Putting on hold packages for kernel, bootloader and pi lib"
+  sudo apt-mark hold libraspberrypi0 raspberrypi-bootloader raspberrypi-kernel
+
 echo "Re-synchronizing package index files from their sources"
 apt-get update || { echo "Running apt-get update failed"; exit 1; }
 apt-get -y install || { echo "Running apt-get -y install failed"; exit 1; }
